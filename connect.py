@@ -9,15 +9,18 @@ db_host=os.getenv("DB_HOST")
 db_user=os.getenv("DB_USER")
 db_pass=os.getenv("DB_PASS")
 
+# this file was just to show the postgresql DB being created in python.
+# It is no longer needed but shows the thought process of creating the DB.
+
 conn = psycopg2.connect(dbname=db_name, user=db_user, password=db_pass, host=db_host)
 
 cur = conn.cursor()
 
 # this just gets all tables and prints them purely for debugging
-cur.execute("""SELECT table_name FROM information_schema.tables
-       WHERE table_schema = 'public'""")
-for table in cur.fetchall():
-    print(table)
+# cur.execute("""SELECT table_name FROM information_schema.tables
+#        WHERE table_schema = 'public'""")
+# for table in cur.fetchall():
+#     print(table)
 
 # cur.execute("CREATE TABLE branches (branchId UUID NOT NULL, PRIMARY KEY(branchId), crmID VARCHAR NOT NULL);")
 

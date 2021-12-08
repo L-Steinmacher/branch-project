@@ -44,8 +44,8 @@ def branch_handler(event, context):
         # run update path method
         id = decodedEvent['branchId']
         key = decodedEvent['key']
-        value = decodedEvent['value']
-        update_branch()
+        val = decodedEvent['val']
+        update_branch(id, key, val)
 
 
 def get_branch(id):
