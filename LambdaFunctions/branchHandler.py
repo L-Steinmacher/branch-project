@@ -1,5 +1,6 @@
 import re
 import psycopg2
+import psycopg2.extras
 import os
 from dotenv import load_dotenv
 import json
@@ -7,6 +8,7 @@ import json
 # Config Values
 load_dotenv()
 
+# Thought change these to os.environ.get()  what is the difference?
 db_name=os.getenv("DB_NAME")
 db_host=os.getenv("DB_HOST")
 db_user=os.getenv("DB_USER")
@@ -54,11 +56,15 @@ def get_branch(id):
     
     try:
         #Connect to DB
-        cur = conn.cursor()
-        cur.execute(sql,id)
-        branch = cur.fetchone()
+        rtn_obj = {}
+        with conn.cursor(cursor_factory=psycopg2.extras.DictConnection) as cur:
+            cur.execute(sql,id)
+            branch = cur.fetchone()
+            for key, value in branch:
+                rtn_obj[key] = value
         conn.commit()
-        cur.close()
+        successResponseObj['body'] = json.dumps(rtn_obj)
+        return successResponseObj
 
     except (Exception, psycopg2.DatabaseError) as e:
         print('Unable to connect!\n{0}').format(e)
@@ -70,13 +76,14 @@ def create_branch(branch_id, crm_id):
     
     try:
         # Connect to the DB
-        cur = conn.cursor()
-        # inserting into database a new branch
-        cur.execute(sql, (branch_id, crm_id))
-        transactionResponse['branchId'] = branch_id
-        transactionResponse['crmId'] = crm_id
-        transactionResponse['message'] = 'created'
-        successResponseObj['body'] = transactionResponse
+        with conn.cursor() as cur:
+            # inserting into database a new branch
+            cur.execute(sql, (branch_id, crm_id))
+            transactionResponse['branchId'] = branch_id
+            transactionResponse['crmId'] = crm_id
+            transactionResponse['message'] = 'created'
+            successResponseObj['body'] = transactionResponse
+            conn.commit()
 
         return successResponseObj
 
@@ -90,10 +97,10 @@ def update_branch(id,key,value):
              VALUES(s%, s%)"""
     transactionResponse = {}
     try:
-        cur = conn.cursor()
-        cur.execute(sql,(key, key, id, value))
-        transactionResponse['message'] = 'created'
-        successResponseObj['body'] = transactionResponse
+        with conn.cursor() as cur:
+            cur.execute(sql,(key, key, id, value))
+            transactionResponse['message'] = 'created'
+            successResponseObj['body'] = transactionResponse
 
         return successResponseObj
 
