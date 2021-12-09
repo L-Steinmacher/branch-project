@@ -17,18 +17,24 @@ conn = psycopg2.connect(dbname=db_name, user=db_user, password=db_pass, host=db_
 cur = conn.cursor()
 
 # this just gets all tables and prints them purely for debugging
-# cur.execute("""SELECT table_name FROM information_schema.tables
-#        WHERE table_schema = 'public'""")
-# for table in cur.fetchall():
-#     print(table)
+cur.execute("""SELECT table_name FROM information_schema.tables
+       WHERE table_schema = 'public'""")
+for table in cur.fetchall():
+    print(table)
 
-# cur.execute("CREATE TABLE branches (branchId UUID NOT NULL, PRIMARY KEY(branchId), crmID VARCHAR NOT NULL);")
+# cur.execute("DROP TABLE billingAccountNumber")
+# cur.execute("DROP TABLE externalPaymentCard")
+# cur.execute("DROP TABLE externalLedger")
+# cur.execute("DROP TABLE branch")
 
-# cur.execute("CREATE TABLE billingAccountNumber(branchId UUID NOT NULL, CONSTRAINT branchId FOREIGN KEY(branchId) REFERENCES branches(branchId), billingAccountNumber VARCHAR NOT NULL PRIMARY KEY);")
+# cur.execute('CREATE TABLE branch(branchId VARCHAR NOT NULL, PRIMARY KEY(branchId), crmID VARCHAR NOT NULL);')
 
-# cur.execute("CREATE TABLE externalPaymentCards(externalPaymentCardId VARCHAR NOT NULL PRIMARY KEY, branchId UUID NOT NULL, CONSTRAINT branchId FOREIGN KEY(branchId) REFERENCES branches(branchId));")
+# cur.execute('CREATE TABLE billingAccountNumber(branchId VARCHAR NOT NULL, CONSTRAINT branchId FOREIGN KEY(branchId) REFERENCES branch(branchId), billingAccountNumber VARCHAR NOT NULL PRIMARY KEY);')
 
-# cur.execute("CREATE TABLE externalLedgers(externalLedgerId VARCHAR NOT NULL PRIMARY KEY, branchId UUID NOT NULL, CONSTRAINT branchId FOREIGN KEY(branchId) REFERENCES branches(branchId));")
+# cur.execute('CREATE TABLE externalPaymentCard(externalPaymentCardId VARCHAR NOT NULL PRIMARY KEY, branchId VARCHAR NOT NULL, CONSTRAINT branchId FOREIGN KEY(branchId) REFERENCES branch(branchId));')
+
+# cur.execute('CREATE TABLE externalLedger(externalLedgerId VARCHAR NOT NULL PRIMARY KEY, branchId VARCHAR NOT NULL, CONSTRAINT branchId FOREIGN KEY(branchId) REFERENCES branch(branchId));')
+# data = cur.execute("SELECT * FROM branch")
 
 # Todo Service account number Table with Billing account number as foreign key.
 # it will be a many to one with BAN table
@@ -36,4 +42,5 @@ cur = conn.cursor()
 conn.commit()
 
 cur.close()
+
 conn.close()
