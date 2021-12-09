@@ -2,10 +2,10 @@
 A project for application to Branch Energy. It will be using postgresql as a database hosted on AWS. Used to update the RDS through Lambda Functions and API Gateway.
 
 ## .env to setup for the RDS
-DB_NAME={should be your postgres database name}
-DB_HOST={should be the aws url that you are given when creating a RDS}
-DB_USER={custome users name set on RDS}
-DB_PASS={unique password from RDS and postgres}
+#### DB_NAME={should be your postgres database name}
+#### DB_HOST={should be the aws url that you are given when creating a RDS}
+#### DB_USER={custome users name set on RDS}
+#### DB_PASS={unique password from RDS and postgres}
 
 ## Uses
 This lambda function will handle three endpoints  that are as followes
