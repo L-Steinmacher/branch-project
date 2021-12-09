@@ -30,13 +30,11 @@ def branch_handler(event):
     body = decodedEvent['body']
 
     if decodedEvent['path'] == GET_BRANCH_RAW_PATH:
-        print("get branch method call")
         # access DB and grab branch with the ID that was passed
         id = body['branchId']
         get_branch(id)
 
     elif decodedEvent['path'] == CREATE_BRANCH_RAW_PATH:
-        print("create method call")
         # insert into DB a new branch
         brId = body['branchId']
         crmId = body['crmId']
@@ -63,12 +61,10 @@ def get_branch(id):
             branch = cur.fetchone()
            
         conn.commit()
-        print(type(branch))
         for key in branch:      
             value = branch[key]
             rtn_obj[key] = value
         successResponseObj['body'] = json.dumps(rtn_obj)
-        print(successResponseObj)
         return successResponseObj
 
     except (Exception, psycopg2.DatabaseError) as e:
@@ -90,7 +86,6 @@ def create_branch(branch_id, crm_id):
             transactionResponse['message'] = 'created'
             successResponseObj['body'] = transactionResponse
             conn.commit()
-        print(successResponseObj)
         return successResponseObj
 
     except (Exception, psycopg2.DatabaseError) as e:
@@ -99,7 +94,6 @@ def create_branch(branch_id, crm_id):
         
 # id = branch ID,  key = table to insert into,  value = the value to be inserted into the table
 def update_branch(id,key,value):
-    print("updatePath method Called")
     sql = """INSERT INTO %s(branchId, %sId) 
              VALUES('%s', '%s')"""
     transactionResponse = {}
@@ -108,10 +102,8 @@ def update_branch(id,key,value):
             cur.execute(sql%(key, key, id, value))
             transactionResponse['message'] = 'created'
             successResponseObj['body'] = json.dumps(transactionResponse)
-        print(successResponseObj)
         return successResponseObj
 
     except (Exception, psycopg2.DatabaseError) as e:
         print('Unable to connect because: ' )
         print(e)
-
