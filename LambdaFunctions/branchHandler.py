@@ -1,4 +1,3 @@
-import re
 import psycopg2
 import psycopg2.extras
 import os
@@ -22,89 +21,89 @@ successResponseObj['body'] = {}
 
 conn = psycopg2.connect(dbname=db_name, user=db_user, password=db_pass, host=db_host)
 
-GET_BRANCH_RAW_PATH = "/getBranch"
-CREATE_BRANCH_RAW_PATH = "/createBranch"
-UPDATE_BRANCH_RAW_PATH = "/updateBranch"
+GET_BRANCH_RAW_PATH = "/getbranch"
+CREATE_BRANCH_RAW_PATH = "/createbranch"
+UPDATE_BRANCH_RAW_PATH = "/updatebranch"
 
-def branch_handler(event, context):
-    print(event)
-    decodedEvent = json.loads(event['body'])
+def branch_handler(event):
+    decodedEvent = json.loads(event)
+    body = decodedEvent['body']
 
-    if event['rawPath'] == GET_BRANCH_RAW_PATH:
+    if decodedEvent['path'] == GET_BRANCH_RAW_PATH:
         # access DB and grab branch with the ID that was passed
-        id = decodedEvent['branchId']
+        id = body['branchId']
         get_branch(id)
 
-    elif event['rawPath'] == CREATE_BRANCH_RAW_PATH:
+    elif decodedEvent['path'] == CREATE_BRANCH_RAW_PATH:
         # insert into DB a new branch
-        brId = decodedEvent['branchId']
-        crmId = decodedEvent['crmId']
+        brId = body['branchId']
+        crmId = body['crmId']
         create_branch(brId, crmId)
 
-    elif event['rawPath'] == UPDATE_BRANCH_RAW_PATH:
+    elif decodedEvent['path'] == UPDATE_BRANCH_RAW_PATH:
         # Get metadata from the event 
         # run update path method
-        id = decodedEvent['branchId']
-        key = decodedEvent['key']
-        val = decodedEvent['val']
+        id = body['branchId']
+        key = body['key']
+        val = body['val']
         update_branch(id, key, val)
 
 
 def get_branch(id):
-    sql = """Select * FROM branches
-              WHERE branchId = (s%);"""
-    
+    sql = """Select * FROM branch
+              WHERE branchid = ('%s');"""
+    # print(id)
     try:
         #Connect to DB
         rtn_obj = {}
-        with conn.cursor(cursor_factory=psycopg2.extras.DictConnection) as cur:
-            cur.execute(sql,id)
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(sql%id)
             branch = cur.fetchone()
-            for key, value in branch:
-                rtn_obj[key] = value
+           
         conn.commit()
+        for key in branch:      
+            value = branch[key]
+            rtn_obj[key] = value
         successResponseObj['body'] = json.dumps(rtn_obj)
         return successResponseObj
 
     except (Exception, psycopg2.DatabaseError) as e:
-        print('Unable to connect!\n{0}').format(e)
+        print('Unable to connect because: ' )
+        print(e)
 
 def create_branch(branch_id, crm_id):
-    sql = """INSERT INTO branch(branchId, crmId)
-             VALUES(s%, s%) RETURNING branchId;"""
+    sql = """INSERT INTO branch(branchid, crmid)
+             VALUES('%s', '%s') RETURNING branchid;"""
     transactionResponse = {}
     
     try:
         # Connect to the DB
         with conn.cursor() as cur:
             # inserting into database a new branch
-            cur.execute(sql, (branch_id, crm_id))
+            cur.execute(sql%(branch_id,crm_id))
             transactionResponse['branchId'] = branch_id
             transactionResponse['crmId'] = crm_id
             transactionResponse['message'] = 'created'
             successResponseObj['body'] = transactionResponse
             conn.commit()
-
         return successResponseObj
 
     except (Exception, psycopg2.DatabaseError) as e:
-        print('Unable to connect!\n{0}').format(e)
+        print('Unable to connect because: ' )
+        print(e)
         
 # id = branch ID,  key = table to insert into,  value = the value to be inserted into the table
 def update_branch(id,key,value):
-    print("updatePath method Called")
-    sql = """INSERT INTO s%(branchId, s%Id) 
-             VALUES(s%, s%)"""
+    sql = """INSERT INTO %s(branchId, %sId) 
+             VALUES('%s', '%s')"""
     transactionResponse = {}
     try:
         with conn.cursor() as cur:
-            cur.execute(sql,(key, key, id, value))
+            cur.execute(sql%(key, key, id, value))
             transactionResponse['message'] = 'created'
-            successResponseObj['body'] = transactionResponse
-
+            successResponseObj['body'] = json.dumps(transactionResponse)
         return successResponseObj
 
     except (Exception, psycopg2.DatabaseError) as e:
-        print('Unable to connect!\n{0}').format(e)
-
-
+        print('Unable to connect because: ' )
+        print(e)
