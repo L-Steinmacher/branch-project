@@ -14,7 +14,7 @@ This lambda function will handle three endpoints  that are as followes
 3) /updatebranch
 
 ### Event
-a text file named createBranch.txt contains the json version that will represent the actual event that comes in from the api gateway.
+
 some points of interest are:
 1) 'path'
     This is the endpoint that is called 
