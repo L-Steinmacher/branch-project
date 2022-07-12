@@ -1,5 +1,5 @@
-# Branch AWS Microservice Project
-A project for application to Branch Energy. It will be using postgresql as a database hosted on AWS. Used to update the RDS through Lambda Functions and API Gateway.
+# AWS Microservice Project
+A project to learn some AWS services. It will be using postgresql as a database hosted on AWS. Used to update the RDS through Lambda Functions and API Gateway.
 
 ## .env to setup for the RDS
 #### DB_NAME={should be your postgres database name}
